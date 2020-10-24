@@ -7,9 +7,6 @@ varying vec2 vUv;
 varying vec3 vPosition;
 
 void main() {
-  float noiseFreq = 8.5;
-  float noiseAmp = 1.15; 
-
   // convert the rectangle from pixels to 0.0 to 1.0
   vec2 zeroToOne = a_position / u_resolution;
 

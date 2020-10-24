@@ -1,9 +1,5 @@
 import React, { Fragment, useRef, useEffect } from "react";
-import {
-  createMultilineText,
-  getPowerOfTwo,
-  measureText,
-} from "./utils/utils";
+import { createMultilineText, getPowerOfTwo, measureText } from "./utils/utils";
 import fragmentShader from "./shaders/fragmentShader";
 import vertexShader from "./shaders/vertexShader";
 import "./App.css";
@@ -80,22 +76,14 @@ const App = () => {
     // lookup uniforms
     const resolutionLocation = gl.getUniformLocation(program, "u_resolution");
     const timeUniform = gl.getUniformLocation(program, `u_time`);
-    const fps = 60,
-      frameDuration = 1000 / fps;
-    let time = 0,
-      lastTime = 0;
 
-    const draw = (elapsed) => {
-      let delta = elapsed - lastTime;
-      lastTime = elapsed;
-      let step = delta / frameDuration;
-      time += step;
+    const draw = (time = 0) => {
       gl.useProgram(program);
       gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.uniform2f(resolutionLocation, gl.canvas.width, gl.canvas.height);
-      gl.uniform1f(timeUniform, time * 0.001);
+      gl.uniform1f(timeUniform, time / 100);
       gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
       gl.enableVertexAttribArray(texCoordAttribute);
       gl.vertexAttribPointer(texCoordAttribute, 2, gl.FLOAT, false, 0, 0);
@@ -103,11 +91,6 @@ const App = () => {
       gl.enableVertexAttribArray(positionAttribute);
       gl.vertexAttribPointer(positionAttribute, 2, gl.FLOAT, false, 0, 0);
       gl.drawArrays(gl.TRIANGLES, 0, 6);
-      const laserColourUniform = gl.getUniformLocation(
-        program,
-        `u_laserColour`
-      );
-      gl.uniform3f(laserColourUniform, 5.0, 0.0, 0.0);
 
       canvas.addEventListener("mousemove", (e) => {
         const rect = gl.canvas.getBoundingClientRect();
@@ -153,13 +136,23 @@ const App = () => {
   const initCanvas2D = () => {
     let canvasX, canvasY;
     let textX, textY;
+
     let text = [];
-    let textToWrite = "ROBOTS ROBOTS ROBOTS ROBOTS ROBOTS";
-    let maxWidth = 30;
-    let textHeight = 650;
-    const $canvas2D = canvas2D.current;
-    const ctx = $canvas2D.getContext(`2d`);
-    ctx.font = textHeight + "italic bold 550pt Tahoma";
+    const textToWrite = "ROBOTICS ROBOTICS ROBOTICS ROBOTICS";
+
+    var maxWidth = 256;
+
+    var textHeight = 70;
+    var textAlignment = "right";
+    var textColour = "#FEFEFE";
+    var fontFamily = "ABBVoice";
+
+    var backgroundColour = "#0E0E11";
+
+    var canvas = canvas2D.current;
+    var ctx = canvas.getContext("2d");
+
+    ctx.font = `normal normal bold ${textHeight}px ${fontFamily}`;
     if (maxWidth && measureText(ctx, textToWrite) > maxWidth) {
       maxWidth = createMultilineText(ctx, textToWrite, maxWidth, text);
       canvasX = getPowerOfTwo(maxWidth);
@@ -169,18 +162,37 @@ const App = () => {
     }
     canvasY = getPowerOfTwo(textHeight * (text.length + 1));
     canvasX > canvasY ? (canvasY = canvasX) : (canvasX = canvasY);
-    $canvas2D.width = canvasX;
-    $canvas2D.height = canvasY;
-    textX = 0;
-    textY = 0;
-    ctx.fillStyle = "#000";
+
+    canvas.width = canvasX;
+    canvas.height = canvasY;
+
+    switch (textAlignment) {
+      case "left":
+        textX = 0;
+        break;
+      case "center":
+        textX = canvasX / 2;
+        break;
+      case "right":
+        textX = canvasX;
+        break;
+      default:
+        break;
+    }
+    textY = canvasY / 2;
+
+    ctx.fillStyle = backgroundColour;
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    ctx.strokeStyle = "#fff";
-    ctx.lineWidth = 20;
-    ctx.textAlign = "middle";
-    ctx.textBaseline = "middle";
-    ctx.font = "italic bold 550pt Tahoma";
+
+    ctx.strokeStyle = textColour;
+    ctx.lineWidth = 2;
+    ctx.textAlign = textAlignment;
+
+    ctx.textBaseline = "middle"; // top, middle, bottom
+    ctx.font = `normal normal bold ${textHeight}px ${fontFamily}`;
+
     var offset = (canvasY - textHeight * (text.length + 1)) * 0.5;
+
     for (var i = 0; i < text.length; i++) {
       if (text.length > 1) {
         textY = (i + 1) * textHeight + offset;
@@ -199,10 +211,13 @@ const App = () => {
   };
 
   return (
-    <Fragment>
+    <header>
+      <h1 className="title">Collaborative robotics.</h1>
       <canvas ref={canvas2D} className="canvas2d" />
-      <canvas ref={canvasWebGL} />
-    </Fragment>
+      <div className="canvas-wrapper">
+        <canvas ref={canvasWebGL} className="canvasWebGL" />
+      </div>
+    </header>
   );
 };
 
