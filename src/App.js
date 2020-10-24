@@ -1,4 +1,4 @@
-import React, { Fragment, useRef, useEffect } from "react";
+import React, { useRef, useEffect } from "react";
 import { createMultilineText, getPowerOfTwo, measureText } from "./utils/utils";
 import fragmentShader from "./shaders/fragmentShader";
 import vertexShader from "./shaders/vertexShader";
@@ -14,8 +14,8 @@ const App = () => {
   }, []);
 
   const initProgram = (program, gl, canvas) => {
-    canvas.width = 800;
-    canvas.height = 800;
+    canvas.width = 1000;
+    canvas.height = 1000;
 
     gl.useProgram(program);
     const texCoordAttribute = gl.getAttribLocation(program, "a_texCoord");

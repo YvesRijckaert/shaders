@@ -14,11 +14,11 @@ float map(float value, float min1, float max1, float min2, float max2) {
 
 void main() {
   float radius = 0.4;
-  float progress = 0.15;  
+  float progress = 0.14;  
 
   float distance = length(vUv - vec2(0.5, 0.5));
   vec4 disp = vec4(0.03, 0.03, 0.03, 0.03);
-  disp.rgb *= sin(distance * 20.0 + u_time);
+  disp.rgb *= sin(distance * 60.0 + u_time);
   vec2 distortedPosition = vec2(vUv.x + disp.r * 0.02, vUv.y);
 
   vec2 direction = normalize(vPosition.xy - vec2(mouse.xy));
